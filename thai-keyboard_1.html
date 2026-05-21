@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thai Keyboard · แป้นพิมพ์ไทย</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg: #0a0a0d;
+  --panel: #14141a;
+  --kb-bg: #1a1a20;
+  --key-bg: #2a2a32;
+  --key-bg-hover: #353540;
+  --key-bg-active: rgba(90,138,255,0.18);
+  --key-border: #383841;
+  --key-text: #ececf0;
+  --key-sub: #6a6a75;
+  --accent: #5a8aff;
+  --accent-glow: rgba(90,138,255,0.35);
+  --text: #e8e8ee;
+  --text-dim: #888892;
+  --toolbar-bg: #1e1e25;
+  --toolbar-border: #2a2a33;
+}
+
+html,body{ height:100%; font-family:'Inter','Noto Sans Thai',system-ui,sans-serif; background: var(--bg); color: var(--text); }
+body{
+  display:flex; flex-direction:column; align-items:center;
+  padding:30px 20px; min-height:100vh;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(60,90,180,0.08), transparent 70%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(100,60,180,0.05), transparent 70%),
+    var(--bg);
+}
+
+.header{ width:100%; max-width:1000px; text-align:center; margin-bottom:24px; }
+.title{ font-size:28px; font-weight:600; letter-spacing:-0.5px; }
+.title .th{
+  font-family:'Noto Sans Thai',sans-serif; margin-left:10px;
+  background: linear-gradient(135deg, var(--accent), #a875ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.subtitle{ font-size:13px; color: var(--text-dim); margin-top:6px; }
+
+.panel{
+  width:100%; max-width:1000px; background: var(--panel);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:16px; padding:18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.toolbar{
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+  padding:10px; background: var(--toolbar-bg);
+  border:1px solid var(--toolbar-border);
+  border-radius:10px 10px 0 0; border-bottom:none;
+}
+.tbtn{
+  display:inline-flex; align-items:center; gap:6px;
+  background: transparent; border:1px solid transparent;
+  color: var(--text); font-size:12px; font-weight:500; font-family:inherit;
+  padding:6px 11px; border-radius:6px; cursor:pointer;
+  transition: all 0.15s; user-select:none;
+}
+.tbtn:hover{ background: var(--key-bg); border-color: var(--key-border); }
+.tbtn:active{ background: var(--key-bg-active); }
+.tbtn .ico{ font-size:13px; opacity:0.85; }
+.tbtn-divider{ width:1px; height:18px; background: var(--toolbar-border); margin:0 4px; }
+.tbtn-spacer{ flex:1; }
+
+.font-control{
+  display:flex; align-items:center; gap:2px;
+  background:var(--bg); border:1px solid var(--toolbar-border);
+  border-radius:6px; padding:2px;
+}
+.font-control button{
+  background:transparent; border:none; color:var(--text);
+  width:24px;height:22px; cursor:pointer; border-radius:4px;
+  font-size:13px; font-family:inherit;
+}
+.font-control button:hover{ background: var(--key-bg); }
+
+#output{
+  width:100%; height:160px; background: #0e0e12;
+  border: 1px solid var(--toolbar-border); border-top: none;
+  color: var(--text);
+  font-family:'Noto Sans Thai','Inter',sans-serif;
+  font-size:18px; line-height:1.7; padding:16px 18px;
+  border-radius:0 0 10px 10px; resize: vertical; outline:none;
+  transition: border-color 0.2s;
+}
+#output:focus{ border-color: var(--accent); }
+#output::placeholder{ color:#444; }
+
+.kb-header{
+  display:flex; align-items:center; justify-content:space-between;
+  margin: 18px 4px 10px;
+}
+.lang-toggle{
+  display:flex; align-items:center; gap:10px;
+  background: var(--key-bg); border:1px solid var(--key-border);
+  border-radius:10px; padding:8px 14px; cursor:pointer;
+  transition: all 0.2s; color: var(--text);
+  font-family:inherit; font-size:13px; font-weight:500; user-select:none;
+}
+.lang-toggle:hover{ border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+.lang-toggle .flag{ font-size:18px; }
+.lang-toggle .switch{
+  display:inline-block; width:32px; height:18px;
+  background:#333; border-radius:9px; position:relative;
+  margin-left:6px; transition: background 0.2s;
+}
+.lang-toggle .switch::after{
+  content:''; position:absolute; top:2px;left:2px;
+  width:14px;height:14px; background: var(--accent);
+  border-radius:50%; transition: transform 0.2s;
+  box-shadow: 0 0 6px var(--accent);
+}
+.lang-toggle.en .switch{ background: rgba(90,138,255,0.3); }
+.lang-toggle.en .switch::after{ transform: translateX(14px); }
+
+.brightness-row{
+  display:flex; align-items:center; gap:10px;
+  font-size:11px; color:var(--text-dim);
+  letter-spacing:0.5px; text-transform:uppercase;
+}
+.brightness-slider{
+  -webkit-appearance:none; appearance:none;
+  width:100px;height:4px; border-radius:4px;
+  background: linear-gradient(90deg, #333, var(--accent));
+  outline:none; cursor:pointer;
+}
+.brightness-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; width:14px;height:14px;border-radius:50%;
+  background:var(--accent); box-shadow: 0 0 8px var(--accent-glow); cursor:pointer;
+}
+
+.keyboard-body{
+  background: var(--kb-bg);
+  border-radius:14px; padding:14px;
+  position:relative;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 8px 24px rgba(0,0,0,0.4),
+    0 20px 50px rgba(0,0,0,0.3);
+}
+.keyboard-body::before{
+  content:''; position:absolute; inset:0; border-radius:14px;
+  background: radial-gradient(ellipse 100% 60% at 50% 100%, var(--keyboard-glow, rgba(120,160,255,0.06)) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.row{ display:flex; gap:5px; margin-bottom:5px; }
+.row:last-child{ margin-bottom:0; }
+
+.key{
+  position:relative; flex:1; height:54px;
+  border-radius:7px;
+  background: var(--key-bg);
+  border:1px solid var(--key-border);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; user-select:none; transition: all 0.08s ease;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.4),
+    0 3px 8px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  overflow:hidden;
+}
+.key::after{
+  content:''; position:absolute; inset:0; border-radius:7px;
+  box-shadow: 0 0 0 0 var(--accent-glow); opacity:0;
+  transition: opacity 0.25s; pointer-events:none;
+}
+.key:hover{ background: var(--key-bg-hover); transform: translateY(-1px); }
+.key:hover::after{
+  opacity: var(--glow-intensity, 0.5);
+  box-shadow: 0 0 12px 1px var(--accent-glow), inset 0 0 8px rgba(90,138,255,0.1);
+}
+.key:active, .key.pressed{
+  transform: translateY(1px);
+  background: var(--key-bg-active);
+  border-color: rgba(90,138,255,0.4);
+  box-shadow:
+    0 0 1px rgba(0,0,0,0.4),
+    inset 0 2px 4px rgba(0,0,0,0.3),
+    0 0 14px var(--accent-glow);
+}
+
+/* ── Key glyph positioning (Branah style: 4 corners) ──
+   .bl = normal English (bottom-left)
+   .tl = shifted English (top-left)
+   .br = normal Thai (bottom-right)
+   .tr = shifted Thai (top-right)
+*/
+.key .glyph{
+  position:absolute; line-height:1;
+  font-family:'Noto Sans Thai','Inter',sans-serif;
+  transition: color 0.2s, opacity 0.2s, font-weight 0.2s;
+}
+.key .glyph.tl{ top:5px; left:7px; font-size:11px; }
+.key .glyph.bl{ bottom:5px; left:7px; font-size:14px; }
+.key .glyph.tr{ top:5px; right:7px; font-size:11px; }
+.key .glyph.br{ bottom:5px; right:7px; font-size:14px; }
+
+/* DEFAULT: all glyphs dim */
+.key .glyph{ color: var(--key-sub); opacity: 0.55; }
+
+/* ── Active glyphs (depend on current lang + shift state) ── */
+/* When language is THAI: highlight Thai side */
+body.lang-th .key .glyph.br{ color: var(--key-text); opacity: 1; font-weight: 500; }
+body.lang-th .key .glyph.tr{ color: var(--key-text); opacity: 0.85; }
+
+/* When language is ENGLISH: highlight English side */
+body.lang-en .key .glyph.bl{ color: var(--key-text); opacity: 1; font-weight: 500; }
+body.lang-en .key .glyph.tl{ color: var(--key-text); opacity: 0.85; }
+
+/* When SHIFT is pressed: brighten shifted glyph, dim normal */
+body.shifted.lang-th .key .glyph.tr{ color: var(--accent); opacity: 1; font-weight: 600; text-shadow: 0 0 8px var(--accent-glow); }
+body.shifted.lang-th .key .glyph.br{ opacity: 0.4; font-weight: 400; }
+body.shifted.lang-en .key .glyph.tl{ color: var(--accent); opacity: 1; font-weight: 600; text-shadow: 0 0 8px var(--accent-glow); }
+body.shifted.lang-en .key .glyph.bl{ opacity: 0.4; font-weight: 400; }
+
+.key.wide{ flex:1.6; }
+.key.wide-2{ flex:2; }
+.key.wide-shift{ flex:2.5; }
+.key.space{ flex:6; }
+
+.key.special{ background: #1d1d24; }
+.key.special .label{
+  font-size:11px; font-weight:500;
+  color:var(--text-dim); letter-spacing:0.3px;
+}
+
+.key.modifier-active{
+  background: rgba(90,138,255,0.2);
+  border-color: rgba(90,138,255,0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 12px var(--accent-glow);
+}
+.key.modifier-active .label{ color: var(--accent); }
+.key.modifier-active::before{
+  content:''; position:absolute; top:6px;right:6px;
+  width:5px;height:5px; border-radius:50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent);
+}
+
+.key.esc-toggle{ background: linear-gradient(180deg, #2a2a32, #25252c); }
+.key.esc-toggle .label{ color: var(--accent); font-weight:600; }
+
+.def-popup{
+  position:fixed;
+  background: #1c1c24;
+  border: 1px solid var(--accent);
+  border-radius:12px;
+  padding:14px 18px; max-width:380px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px var(--accent-glow);
+  z-index:1000; font-size:13px; line-height:1.5;
+  pointer-events:none; opacity:0;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.def-popup.show{ opacity:1; transform: translateY(0); }
+.def-popup .word{
+  font-size:18px; font-weight:600; color:var(--accent);
+  margin-bottom:4px; font-family:'Inter',sans-serif;
+}
+.def-popup .phonetic{ font-size:12px; color:var(--text-dim); margin-bottom:8px; font-style:italic; }
+.def-popup .pos{
+  display:inline-block; background:rgba(90,138,255,0.15); color:var(--accent);
+  font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;
+  padding:2px 7px; border-radius:4px; margin-bottom:6px;
+}
+.def-popup .definition{ color:var(--text); margin-bottom:6px; }
+.def-popup .example{
+  color:var(--text-dim); font-size:12px; font-style:italic;
+  border-left: 2px solid var(--accent); padding-left:8px; margin-top:4px;
+}
+.def-popup .loading{ color:var(--text-dim); font-size:12px; }
+.def-popup .error{ color:#ff7a7a; font-size:12px; }
+
+.help{
+  width:100%; max-width:1000px; margin-top:24px;
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px; padding:0 4px;
+}
+.help-card{
+  background: var(--panel); border:1px solid var(--toolbar-border);
+  border-radius:10px; padding:14px 16px;
+  font-size:12px; color:var(--text-dim); line-height:1.6;
+}
+.help-card b{ color:var(--text); display:block; margin-bottom:4px; font-size:13px; font-weight:600; }
+
+kbd{
+  background: var(--key-bg); border:1px solid var(--key-border);
+  border-radius:4px; padding:1px 6px; font-size:11px;
+  font-family:'Inter',monospace; color:var(--accent);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.footer{
+  margin-top:30px; font-size:11px; color:#444;
+  letter-spacing:1.5px; text-transform:uppercase;
+}
+
+@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+.toast{
+  position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+  background: var(--accent); color:white;
+  padding:8px 18px; border-radius:20px;
+  font-size:12px; font-weight:500;
+  box-shadow:0 4px 20px var(--accent-glow);
+  z-index:9999; animation: toastIn .2s ease-out;
+}
+</style>
+</head>
+<body class="lang-th">
+
+<div class="header">
+  <div class="title">Thai Keyboard <span class="th">แป้นพิมพ์ไทย</span></div>
+  <div class="subtitle">Click or type · Copy · Paste · Done · Hover English words for definitions</div>
+</div>
+
+<div class="panel">
+  <div class="toolbar">
+    <button class="tbtn" onclick="selectAll()"><span class="ico">⊞</span>Select All</button>
+    <button class="tbtn" onclick="copyText()"><span class="ico">⎘</span>Copy</button>
+    <button class="tbtn" onclick="cutText()"><span class="ico">✂</span>Cut</button>
+    <button class="tbtn" onclick="pasteText()"><span class="ico">📋</span>Paste</button>
+    <div class="tbtn-divider"></div>
+    <button class="tbtn" onclick="undoText()"><span class="ico">↶</span>Undo</button>
+    <button class="tbtn" onclick="redoText()"><span class="ico">↷</span>Redo</button>
+    <button class="tbtn" onclick="clearText()"><span class="ico">🗑</span>Clear</button>
+    <div class="tbtn-divider"></div>
+    <button class="tbtn" onclick="saveText()"><span class="ico">💾</span>Save</button>
+    <button class="tbtn" onclick="lookupSelection()" title="Lookup English word"><span class="ico">📖</span>Define</button>
+    <div class="tbtn-spacer"></div>
+    <div class="font-control">
+      <button onclick="changeFont(-1)" title="Smaller">−</button>
+      <button onclick="changeFont(1)" title="Bigger">+</button>
+    </div>
+  </div>
+
+  <textarea id="output" placeholder="พิมพ์ที่นี่... Type here... Hover any English word for its definition."></textarea>
+
+  <div class="kb-header">
+    <button class="lang-toggle" id="langToggle" onclick="toggleLang()">
+      <span class="flag" id="langFlag">🇹🇭</span>
+      <span id="langName">ภาษาไทย</span>
+      <span class="switch"></span>
+      <span style="margin-left:6px; color:var(--text-dim); font-size:11px">EN</span>
+    </button>
+    <div class="brightness-row">
+      <span>💡 Backlight</span>
+      <input type="range" class="brightness-slider" id="brightness" min="0" max="100" value="60" oninput="updateGlow(this.value)">
+    </div>
+  </div>
+
+  <div class="keyboard-body" id="keyboardBody"></div>
+</div>
+
+<div class="help">
+  <div class="help-card">
+    <b>🔄 Switch Language</b>
+    Click toggle, press <kbd>Esc</kbd>, or the on-screen <kbd>esc ⇄</kbd> key.
+  </div>
+  <div class="help-card">
+    <b>⇧ Shift</b>
+    Click <kbd>Shift</kbd> on screen to see hidden Thai characters lit up in blue.
+  </div>
+  <div class="help-card">
+    <b>📖 English Definitions</b>
+    Hover any English word in the textarea for instant definition.
+  </div>
+  <div class="help-card">
+    <b>⌨️ Real Keyboard</b>
+    Type on physical keyboard — auto-maps to Thai when in TH mode.
+  </div>
+</div>
+
+<div class="footer">⌘ Online Thai Keyboard · TIS 820-2538 Kedmanee Layout</div>
+
+<div class="def-popup" id="defPopup"></div>
+
+<script>
+/* ───────────────────────────────────────────────────────────
+   AUTHORITATIVE Thai Kedmanee Layout (TIS 820-2538)
+   Source: Microsoft KBDTH0.DLL via kbdlayout.info
+   Each cell: {en, enShift, th, thShift}
+─────────────────────────────────────────────────────────── */
+const LAYOUT = {
+  row1: [
+    {en:'`',  enShift:'~',  th:'_',  thShift:'%'},
+    {en:'1',  enShift:'!',  th:'ๅ',  thShift:'+'},
+    {en:'2',  enShift:'@',  th:'/',  thShift:'๑'},
+    {en:'3',  enShift:'#',  th:'-',  thShift:'๒'},
+    {en:'4',  enShift:'$',  th:'ภ',  thShift:'๓'},
+    {en:'5',  enShift:'%',  th:'ถ',  thShift:'๔'},
+    {en:'6',  enShift:'^',  th:'ุ',  thShift:'ู'},
+    {en:'7',  enShift:'&',  th:'ึ',  thShift:'฿'},
+    {en:'8',  enShift:'*',  th:'ค',  thShift:'๕'},
+    {en:'9',  enShift:'(',  th:'ต',  thShift:'๖'},
+    {en:'0',  enShift:')',  th:'จ',  thShift:'๗'},
+    {en:'-',  enShift:'_',  th:'ข',  thShift:'๘'},
+    {en:'=',  enShift:'+',  th:'ช',  thShift:'๙'},
+  ],
+  row2: [
+    {en:'q',  enShift:'Q',  th:'ๆ',  thShift:'๐'},
+    {en:'w',  enShift:'W',  th:'ไ',  thShift:'"'},
+    {en:'e',  enShift:'E',  th:'ำ',  thShift:'ฎ'},
+    {en:'r',  enShift:'R',  th:'พ',  thShift:'ฑ'},
+    {en:'t',  enShift:'T',  th:'ะ',  thShift:'ธ'},
+    {en:'y',  enShift:'Y',  th:'ั',  thShift:'ํ'},
+    {en:'u',  enShift:'U',  th:'ี',  thShift:'๊'},
+    {en:'i',  enShift:'I',  th:'ร',  thShift:'ณ'},
+    {en:'o',  enShift:'O',  th:'น',  thShift:'ฯ'},
+    {en:'p',  enShift:'P',  th:'ย',  thShift:'ญ'},
+    {en:'[',  enShift:'{',  th:'บ',  thShift:'ฐ'},
+    {en:']',  enShift:'}',  th:'ล',  thShift:','},
+    {en:'\\', enShift:'|',  th:'ฃ',  thShift:'ฅ'},
+  ],
+  row3: [
+    {en:'a',  enShift:'A',  th:'ฟ',  thShift:'ฤ'},
+    {en:'s',  enShift:'S',  th:'ห',  thShift:'ฆ'},
+    {en:'d',  enShift:'D',  th:'ก',  thShift:'ฏ'},
+    {en:'f',  enShift:'F',  th:'ด',  thShift:'โ'},
+    {en:'g',  enShift:'G',  th:'เ',  thShift:'ฌ'},
+    {en:'h',  enShift:'H',  th:'้',  thShift:'็'},
+    {en:'j',  enShift:'J',  th:'่',  thShift:'๋'},
+    {en:'k',  enShift:'K',  th:'า',  thShift:'ษ'},
+    {en:'l',  enShift:'L',  th:'ส',  thShift:'ศ'},
+    {en:';',  enShift:':',  th:'ว',  thShift:'ซ'},
+    {en:'\'', enShift:'"',  th:'ง',  thShift:'.'},
+  ],
+  row4: [
+    {en:'z',  enShift:'Z',  th:'ผ',  thShift:'('},
+    {en:'x',  enShift:'X',  th:'ป',  thShift:')'},
+    {en:'c',  enShift:'C',  th:'แ',  thShift:'ฉ'},
+    {en:'v',  enShift:'V',  th:'อ',  thShift:'ฮ'},
+    {en:'b',  enShift:'B',  th:'ิ',  thShift:'ฺ'},
+    {en:'n',  enShift:'N',  th:'ื',  thShift:'์'},
+    {en:'m',  enShift:'M',  th:'ท',  thShift:'?'},
+    {en:',',  enShift:'<',  th:'ม',  thShift:'ฒ'},
+    {en:'.',  enShift:'>',  th:'ใ',  thShift:'ฬ'},
+    {en:'/',  enShift:'?',  th:'ฝ',  thShift:'ฦ'},
+  ],
+};
+
+let lang = 'th';          // 'th' | 'en'
+let shifted = false;
+let capsLock = false;
+
+const $ = id => document.getElementById(id);
+
+/* ───── Build keyboard DOM ───── */
+function buildKeyboard(){
+  const kb = $('keyboardBody');
+  kb.innerHTML = '';
+
+  // Row 1: number row + backspace
+  const r1 = mkRow();
+  LAYOUT.row1.forEach(k => r1.appendChild(mkKey(k)));
+  r1.appendChild(mkSpecial('⌫ delete', 'Backspace', 'wide'));
+  kb.appendChild(r1);
+
+  // Row 2: tab + qwerty + \
+  const r2 = mkRow();
+  r2.appendChild(mkSpecial('⇥ tab', 'Tab', 'wide'));
+  LAYOUT.row2.forEach(k => r2.appendChild(mkKey(k)));
+  kb.appendChild(r2);
+
+  // Row 3: caps + asdf + enter
+  const r3 = mkRow();
+  const caps = mkSpecial('⇪ caps', 'CapsLock', 'wide-2');
+  if(capsLock) caps.classList.add('modifier-active');
+  r3.appendChild(caps);
+  LAYOUT.row3.forEach(k => r3.appendChild(mkKey(k)));
+  r3.appendChild(mkSpecial('⏎ return', 'Enter', 'wide-2'));
+  kb.appendChild(r3);
+
+  // Row 4: shift + zxcv + shift
+  const r4 = mkRow();
+  const shL = mkSpecial('⇧ shift', 'Shift', 'wide-shift');
+  if(shifted) shL.classList.add('modifier-active');
+  r4.appendChild(shL);
+  LAYOUT.row4.forEach(k => r4.appendChild(mkKey(k)));
+  const shR = mkSpecial('⇧ shift', 'Shift', 'wide-shift');
+  if(shifted) shR.classList.add('modifier-active');
+  r4.appendChild(shR);
+  kb.appendChild(r4);
+
+  // Row 5: esc-toggle + modifiers + space
+  const r5 = mkRow();
+  const esc = mkSpecial('esc ⇄ ' + (lang==='th'?'EN':'TH'), 'EscToggle', '');
+  esc.classList.add('esc-toggle');
+  r5.appendChild(esc);
+  r5.appendChild(mkSpecial('fn', null, ''));
+  r5.appendChild(mkSpecial('⌃ ctrl', null, ''));
+  r5.appendChild(mkSpecial('⌥ alt', null, ''));
+  r5.appendChild(mkSpecial('⌘', null, ''));
+  const space = mkSpecial(lang==='th' ? 'ภาษาไทย — Spacebar' : 'English — Spacebar', ' ', 'space');
+  r5.appendChild(space);
+  r5.appendChild(mkSpecial('⌘', null, ''));
+  r5.appendChild(mkSpecial('⌥', null, ''));
+  r5.appendChild(mkSpecial('◀', null, ''));
+  r5.appendChild(mkSpecial('▼▲', null, ''));
+  r5.appendChild(mkSpecial('▶', null, ''));
+  kb.appendChild(r5);
+}
+
+function mkRow(){ const r=document.createElement('div'); r.className='row'; return r; }
+
+function mkKey(data){
+  const key = document.createElement('div');
+  key.className = 'key';
+  // 4-corner layout: TL=enShift, BL=en, TR=thShift, BR=th
+  key.innerHTML = `
+    <span class="glyph tl">${escapeHtml(data.enShift)}</span>
+    <span class="glyph tr">${escapeHtml(data.thShift)}</span>
+    <span class="glyph bl">${escapeHtml(data.en)}</span>
+    <span class="glyph br">${escapeHtml(data.th)}</span>
+  `;
+  key.addEventListener('mousedown', e => {
+    e.preventDefault();
+    const ch = currentChar(data);
+    pushHistory();
+    insertChar(ch);
+    pressFlash(key);
+    if(shifted){ shifted = false; updateBodyClasses(); buildKeyboard(); }
+  });
+  return key;
+}
+
+function currentChar(data){
+  // Caps Lock only affects letters (a-z)
+  const isLetter = /^[a-z]$/.test(data.en);
+  const useShift = shifted !== (capsLock && isLetter && !shifted ? true : false);
+  // Simpler: XOR
+  const eff = shifted ^ (capsLock && isLetter);
+  if(lang === 'th') return eff ? data.thShift : data.th;
+  return eff ? data.enShift : data.en;
+}
+
+function mkSpecial(label, action, sizeClass){
+  const k = document.createElement('div');
+  k.className = 'key special ' + (sizeClass || '');
+  k.innerHTML = `<span class="label">${label}</span>`;
+  k.addEventListener('mousedown', e => {
+    e.preventDefault();
+    if(!action) return;
+    handleAction(action);
+    pressFlash(k);
+  });
+  return k;
+}
+
+function handleAction(action){
+  const ta = $('output');
+  ta.focus();
+  switch(action){
+    case 'Backspace':{
+      pushHistory();
+      const s = ta.selectionStart, e = ta.selectionEnd;
+      if(s !== e){ ta.value = ta.value.slice(0,s) + ta.value.slice(e); ta.selectionStart=ta.selectionEnd=s; }
+      else if(s > 0){ ta.value = ta.value.slice(0,s-1) + ta.value.slice(s); ta.selectionStart=ta.selectionEnd=s-1; }
+      break;
+    }
+    case 'Enter': pushHistory(); insertChar('\n'); break;
+    case 'Tab': pushHistory(); insertChar('\t'); break;
+    case 'Shift':
+      shifted = !shifted;
+      updateBodyClasses();
+      buildKeyboard();
+      break;
+    case 'CapsLock':
+      capsLock = !capsLock;
+      updateBodyClasses();
+      buildKeyboard();
+      break;
+    case 'EscToggle': toggleLang(); break;
+    case ' ': pushHistory(); insertChar(' '); break;
+  }
+}
+
+function insertChar(ch){
+  const ta = $('output');
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0,s) + ch + ta.value.slice(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = s + ch.length;
+}
+
+function pressFlash(el){
+  el.classList.add('pressed');
+  setTimeout(()=>el.classList.remove('pressed'), 130);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+}
+
+/* ───── Body class management — drives which glyphs light up ───── */
+function updateBodyClasses(){
+  document.body.classList.toggle('lang-th', lang === 'th');
+  document.body.classList.toggle('lang-en', lang === 'en');
+  document.body.classList.toggle('shifted', shifted);
+  document.body.classList.toggle('caps', capsLock);
+}
+
+/* ───── Language toggle ───── */
+function toggleLang(){
+  lang = lang === 'th' ? 'en' : 'th';
+  const tg = $('langToggle');
+  if(lang==='en'){
+    tg.classList.add('en');
+    $('langFlag').textContent='🇺🇸';
+    $('langName').textContent='English';
+  } else {
+    tg.classList.remove('en');
+    $('langFlag').textContent='🇹🇭';
+    $('langName').textContent='ภาษาไทย';
+  }
+  updateBodyClasses();
+  buildKeyboard();
+}
+
+/* ───── Toolbar actions ───── */
+function selectAll(){ const t=$('output'); t.focus(); t.select(); }
+
+function copyText(){
+  const t=$('output'); t.focus();
+  const sel = t.value.substring(t.selectionStart, t.selectionEnd) || t.value;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(sel).then(()=>toast('Copied'), ()=>toast('Copy failed'));
+  } else {
+    document.execCommand('copy');
+    toast('Copied');
+  }
+}
+
+function cutText(){
+  const t=$('output'); t.focus();
+  const s=t.selectionStart,e=t.selectionEnd;
+  if(s===e) return;
+  pushHistory();
+  if(navigator.clipboard) navigator.clipboard.writeText(t.value.slice(s,e));
+  t.value = t.value.slice(0,s)+t.value.slice(e);
+  t.selectionStart=t.selectionEnd=s;
+  toast('Cut');
+}
+
+function pasteText(){
+  const t=$('output'); t.focus();
+  if(!navigator.clipboard || !navigator.clipboard.readText){ toast('Paste not supported'); return; }
+  navigator.clipboard.readText().then(txt=>{ pushHistory(); insertChar(txt); toast('Pasted'); }, ()=>toast('Paste blocked'));
+}
+
+let history = [], future = [];
+function pushHistory(){
+  const t=$('output');
+  if(history.length === 0 || history[history.length-1] !== t.value){
+    history.push(t.value);
+    if(history.length>100) history.shift();
+    future=[];
+  }
+}
+function undoText(){
+  const t=$('output');
+  if(history.length){ future.push(t.value); t.value = history.pop(); }
+}
+function redoText(){
+  const t=$('output');
+  if(future.length){ history.push(t.value); t.value = future.pop(); }
+}
+function clearText(){ const t=$('output'); pushHistory(); t.value=''; t.focus(); toast('Cleared'); }
+function saveText(){
+  const t=$('output');
+  const blob = new Blob([t.value],{type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'thai-text.txt';
+  a.click();
+  toast('Saved');
+}
+function toast(msg){
+  const f = document.createElement('div');
+  f.className = 'toast';
+  f.textContent = msg;
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(), 1400);
+}
+
+let fontSize = 18;
+function changeFont(d){
+  fontSize = Math.max(12, Math.min(40, fontSize + d*2));
+  $('output').style.fontSize = fontSize + 'px';
+}
+
+function updateGlow(val){
+  const i = val/100;
+  document.documentElement.style.setProperty('--glow-intensity', i);
+  document.documentElement.style.setProperty('--keyboard-glow', `rgba(120,160,255,${0.02 + i*0.12})`);
+  document.documentElement.style.setProperty('--accent-glow', `rgba(90,138,255,${0.15 + i*0.4})`);
+}
+
+/* ───── Physical keyboard → Thai mapping ─────
+   Index by KeyboardEvent.code (physical key position), NOT e.key.
+   This fixes the bug where Shift+';' (which gives e.key=':') was
+   matching e.key against the layout and producing wrong Thai chars.
+*/
+const codeToKey = {};
+
+const row1Codes = ['Backquote','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal'];
+LAYOUT.row1.forEach((k,i)=>{ codeToKey[row1Codes[i]] = k; });
+
+const row2Codes = ['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight','Backslash'];
+LAYOUT.row2.forEach((k,i)=>{ codeToKey[row2Codes[i]] = k; });
+
+const row3Codes = ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote'];
+LAYOUT.row3.forEach((k,i)=>{ codeToKey[row3Codes[i]] = k; });
+
+const row4Codes = ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash'];
+LAYOUT.row4.forEach((k,i)=>{ codeToKey[row4Codes[i]] = k; });
+
+document.addEventListener('keydown', e => {
+  // Escape → toggle language
+  if(e.key === 'Escape'){ e.preventDefault(); toggleLang(); return; }
+
+  // Highlight matching on-screen key by physical position
+  const keyData = codeToKey[e.code];
+  if(keyData){
+    document.querySelectorAll('.key').forEach(k=>{
+      const bl = k.querySelector('.glyph.bl');
+      if(bl && bl.textContent === keyData.en) k.classList.add('pressed');
+    });
+  }
+
+  // Track shift state visually
+  if(e.key === 'Shift'){
+    shifted = true;
+    updateBodyClasses();
+    return;
+  }
+  if(e.key === 'CapsLock'){
+    setTimeout(()=>{ capsLock = e.getModifierState('CapsLock'); updateBodyClasses(); }, 0);
+    return;
+  }
+
+  // Map to Thai when in TH mode — use physical key code
+  if(lang === 'th' && !e.ctrlKey && !e.metaKey && !e.altKey){
+    if(keyData){
+      e.preventDefault();
+      pushHistory();
+      const mapped = e.shiftKey ? keyData.thShift : keyData.th;
+      insertChar(mapped);
+    }
+    // For Space/Enter/Tab/Backspace/Arrows — let browser handle natively
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if(e.key === 'Shift'){
+    shifted = false;
+    updateBodyClasses();
+  }
+  document.querySelectorAll('.key.pressed').forEach(k=>k.classList.remove('pressed'));
+});
+
+/* ───── Dictionary lookup ───── */
+const defCache = {};
+const popup = $('defPopup');
+let hoverTimer = null;
+
+async function fetchDefinition(word){
+  word = word.toLowerCase();
+  if(defCache[word] !== undefined) return defCache[word];
+  try{
+    const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if(!r.ok){ defCache[word] = null; return null; }
+    const data = await r.json();
+    defCache[word] = data[0];
+    return data[0];
+  } catch(err){
+    defCache[word] = null;
+    return null;
+  }
+}
+
+function showDefAt(x, y, content){
+  popup.innerHTML = content;
+  const px = Math.min(x, window.innerWidth - 400);
+  const py = Math.min(y + 18, window.innerHeight - 220);
+  popup.style.left = px + 'px';
+  popup.style.top = py + 'px';
+  popup.classList.add('show');
+}
+function hideDef(){ popup.classList.remove('show'); }
+
+function getWordAt(textarea, pos){
+  const v = textarea.value;
+  if(pos > v.length) return null;
+  let start = pos, end = pos;
+  while(start > 0 && /[A-Za-z']/.test(v[start-1])) start--;
+  while(end < v.length && /[A-Za-z']/.test(v[end])) end++;
+  if(start === end) return null;
+  const word = v.slice(start, end).replace(/^'+|'+$/g,'');
+  if(!/^[A-Za-z]/.test(word) || word.length < 2) return null;
+  return word;
+}
+
+function getCaretPosFromMouse(ta, e){
+  if(document.caretPositionFromPoint){
+    const r = document.caretPositionFromPoint(e.clientX, e.clientY);
+    if(r) return r.offset;
+  } else if(document.caretRangeFromPoint){
+    const r = document.caretRangeFromPoint(e.clientX, e.clientY);
+    if(r) return r.startOffset;
+  }
+  return null;
+}
+
+function renderDef(def, fallbackWord){
+  if(!def){
+    return `<div class="word">${fallbackWord}</div><div class="error">No definition found.</div>`;
+  }
+  const phon = def.phonetic || (def.phonetics && def.phonetics.find(p=>p.text)?.text) || '';
+  const m = def.meanings[0];
+  const d = m.definitions[0];
+  return `
+    <div class="word">${def.word}</div>
+    ${phon ? `<div class="phonetic">${phon}</div>` : ''}
+    <div class="pos">${m.partOfSpeech}</div>
+    <div class="definition">${d.definition}</div>
+    ${d.example ? `<div class="example">"${d.example}"</div>` : ''}
+  `;
+}
+
+$('output').addEventListener('mousemove', e => {
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(async () => {
+    const ta = e.target;
+    const pos = getCaretPosFromMouse(ta, e);
+    if(pos == null){ hideDef(); return; }
+    const word = getWordAt(ta, pos);
+    if(!word){ hideDef(); return; }
+
+    showDefAt(e.clientX, e.clientY, `<div class="loading">Looking up "<b>${word}</b>"…</div>`);
+    const def = await fetchDefinition(word);
+    showDefAt(e.clientX, e.clientY, renderDef(def, word));
+  }, 400);
+});
+
+$('output').addEventListener('mouseleave', () => { clearTimeout(hoverTimer); hideDef(); });
+
+async function lookupSelection(){
+  const ta = $('output');
+  let word = ta.value.substring(ta.selectionStart, ta.selectionEnd).trim();
+  if(!word) word = getWordAt(ta, ta.selectionStart);
+  if(!word || !/^[A-Za-z]+$/.test(word)){ toast('Select an English word'); return; }
+  const rect = ta.getBoundingClientRect();
+  showDefAt(rect.left + 30, rect.top + 30, `<div class="loading">Looking up "<b>${word}</b>"…</div>`);
+  const def = await fetchDefinition(word);
+  showDefAt(rect.left + 30, rect.top + 30, renderDef(def, word));
+  setTimeout(() => {
+    document.addEventListener('click', function once(){ hideDef(); document.removeEventListener('click', once); }, {once:true});
+  }, 100);
+}
+
+$('output').addEventListener('beforeinput', pushHistory);
+
+/* ───── Init ───── */
+updateBodyClasses();
+buildKeyboard();
+updateGlow(60);
+$('output').focus();
+</script>
+</body>
+</html>
